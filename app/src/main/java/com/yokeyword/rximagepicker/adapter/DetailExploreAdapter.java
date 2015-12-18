@@ -33,7 +33,7 @@ public class DetailExploreAdapter extends RecyclerView.Adapter<DetailExploreAdap
     private List<File> items = new ArrayList<>();
 
     // 用来控制CheckBox的选中状况
-    private static List<Boolean> mChecked;
+    private List<Boolean> mChecked;
 
     private int width, height;
 
@@ -52,6 +52,7 @@ public class DetailExploreAdapter extends RecyclerView.Adapter<DetailExploreAdap
     public void setDatas(List<File> beans) {
         items.clear();
         items.addAll(beans);
+        initData();
         notifyDataSetChanged();
     }
 

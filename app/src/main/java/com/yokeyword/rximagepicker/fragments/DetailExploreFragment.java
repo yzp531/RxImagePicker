@@ -1,20 +1,16 @@
 package com.yokeyword.rximagepicker.fragments;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,32 +21,28 @@ import com.yokeyword.rximagepicker.adapter.DetailExploreAdapter;
 import com.yokeyword.rximagepicker.helper.OnRecyclerViewItemClickListener;
 import com.yokeyword.rximagepicker.helper.RxBus;
 import com.yokeyword.rximagepicker.helper.SpacingDecoration;
-import com.yokeyword.rximagepicker.model.BucketEntity;
 import com.yokeyword.rximagepicker.model.event.AddPreviewEvent;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 /**
  * 手机上图片详细 界面
  * Created by Yokeyword on 2015/12/14.
  */
-public class DetailExploreFragment extends Fragment implements OnRecyclerViewItemClickListener, View.OnClickListener {
+public class DetailExploreFragment extends BaseFragment implements OnRecyclerViewItemClickListener, View.OnClickListener {
     private static final String ARG_BUCKET = "arg_bucket";
     private static final String ARG_IS_MULTIPLE = "arg_is_multiple";
 
     private RecyclerView recyclerView;
     private TextView tvBtnPreview, tvBtnYes, tvPickPicCount;
-    private Activity activity;
 
     private Subscription subscription;
 
@@ -70,12 +62,6 @@ public class DetailExploreFragment extends Fragment implements OnRecyclerViewIte
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        this.activity = activity;
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_explore_detail, container, false);
         initView(view);
@@ -92,8 +78,8 @@ public class DetailExploreFragment extends Fragment implements OnRecyclerViewIte
         tvBtnYes.setOnClickListener(this);
         tvBtnPreview.setOnClickListener(this);
 
-        GridLayoutManager manager = new GridLayoutManager(activity, 3);
-        adapter = new DetailExploreAdapter(activity, DetailExploreFragment.this);
+        GridLayoutManager manager = new GridLayoutManager(_activity, 3);
+        adapter = new DetailExploreAdapter(_activity, DetailExploreFragment.this);
         recyclerView.addItemDecoration(new SpacingDecoration(12, 12, false));
         recyclerView.setLayoutManager(manager);
         recyclerView.setAdapter(adapter);
@@ -123,7 +109,7 @@ public class DetailExploreFragment extends Fragment implements OnRecyclerViewIte
                             adapter.addData(file);
                         }, throwable -> {
                             throwable.printStackTrace();
-                            Toast.makeText(activity, R.string.yo_find_exception, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(_activity, R.string.yo_find_exception, Toast.LENGTH_SHORT).show();
                         }
                 );
     }
@@ -150,7 +136,7 @@ public class DetailExploreFragment extends Fragment implements OnRecyclerViewIte
         };
         String selection = MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " = ?";
 
-        return activity.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, mediaColumns, selection, new String[]{bucket_name}, null);
+        return _activity.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, mediaColumns, selection, new String[]{bucket_name}, null);
     }
 
     @Override
@@ -173,11 +159,11 @@ public class DetailExploreFragment extends Fragment implements OnRecyclerViewIte
         tvPickPicCount.setText(String.format(getString(R.string.yo_select_pic_count), adapter.getCheckedList().size()));
 
         if (adapter.isNoneChecked()) {
-            tvBtnPreview.setTextColor(ContextCompat.getColor(activity, R.color.yo_text_light));
-            tvBtnYes.setTextColor(ContextCompat.getColor(activity, R.color.yo_text_light));
+            tvBtnPreview.setTextColor(ContextCompat.getColor(_activity, R.color.yo_text_light));
+            tvBtnYes.setTextColor(ContextCompat.getColor(_activity, R.color.yo_text_light));
         } else {
-            tvBtnPreview.setTextColor(ContextCompat.getColor(activity, R.color.yo_blue));
-            tvBtnYes.setTextColor(ContextCompat.getColor(activity, R.color.yo_blue));
+            tvBtnPreview.setTextColor(ContextCompat.getColor(_activity, R.color.yo_blue));
+            tvBtnYes.setTextColor(ContextCompat.getColor(_activity, R.color.yo_blue));
         }
 
         if (adapter.getChecked(position)) {
@@ -192,7 +178,7 @@ public class DetailExploreFragment extends Fragment implements OnRecyclerViewIte
         ArrayList<String> checkedPics = adapter.getCheckedList();
 
         if (checkedPics.size() == 0) {
-            Toast.makeText(activity, R.string.yo_tip_select, Toast.LENGTH_LONG).show();
+            Toast.makeText(_activity, R.string.yo_tip_select, Toast.LENGTH_LONG).show();
         } else {
             if (v.getId() == R.id.tv_btn_preview) {
                 // 预览
@@ -203,9 +189,17 @@ public class DetailExploreFragment extends Fragment implements OnRecyclerViewIte
                     data.putExtra(ImagePickerActivity.EXTRA_SINGLE_PICKER, checkedPics.get(0));
                 }
                 data.putStringArrayListExtra(ImagePickerActivity.EXTRA_MULTIPLE_PICKER, checkedPics);
-                activity.setResult(Activity.RESULT_OK, data);
-                activity.finish();
+                _activity.setResult(Activity.RESULT_OK, data);
+                _activity.finish();
             }
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (subscription != null && !subscription.isUnsubscribed()) {
+            subscription.unsubscribe();
         }
     }
 }

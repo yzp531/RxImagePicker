@@ -23,13 +23,12 @@ import java.util.ArrayList;
  * 图片浏览界面ViewPager
  * Created by Yokeyword on 2015/12/14.
  */
-public class PreviewFragment extends Fragment {
+public class PreviewFragment extends BaseFragment {
     private static final String ARG_IMGS = "arg_imgs";
     private static final String ARG_IS_MULTIPLE = "arg_is_multiple";
 
     private static final int INIT_POSITION = 0;
 
-    private Activity activity;
     private ViewPager viewPager;
     private TextView tvCount, tvBtnYes, tvPickPicCount;
 
@@ -44,12 +43,6 @@ public class PreviewFragment extends Fragment {
         bundle.putBoolean(ARG_IS_MULTIPLE, isMultiplePick);
         fragment.setArguments(bundle);
         return fragment;
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        this.activity = activity;
     }
 
     @Override
@@ -113,8 +106,8 @@ public class PreviewFragment extends Fragment {
                 data.putExtra(ImagePickerActivity.EXTRA_SINGLE_PICKER, imgList.get(0));
             }
             data.putStringArrayListExtra(ImagePickerActivity.EXTRA_MULTIPLE_PICKER, imgList);
-            activity.setResult(Activity.RESULT_OK, data);
-            activity.finish();
+            _activity.setResult(Activity.RESULT_OK, data);
+            _activity.finish();
         });
 
     }

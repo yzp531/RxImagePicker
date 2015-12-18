@@ -17,12 +17,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.squareup.leakcanary.RefWatcher;
 import com.yokeyword.R;
 import com.yokeyword.rximagepicker.adapter.ExploreAdapter;
 import com.yokeyword.rximagepicker.helper.RxBus;
 import com.yokeyword.rximagepicker.helper.SpacingDecoration;
 import com.yokeyword.rximagepicker.model.BucketEntity;
 import com.yokeyword.rximagepicker.model.event.AddDetailEvent;
+import com.yokeyword.simple.SimpleApplication;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -35,11 +37,10 @@ import rx.schedulers.Schedulers;
  * 手机上图片浏览界面
  * Created by Yokeyword on 2015/12/14.
  */
-public class ExploreFragment extends Fragment {
+public class ExploreFragment extends BaseFragment {
     private static final int REQT_READ_EXTERNAL_STORAGE = 123;
     private static final String COLUMN_NAME_COUNT = "v_count";
 
-    private Activity activity;
     private RecyclerView recyclerView;
     private ExploreAdapter adapter;
 
@@ -47,12 +48,6 @@ public class ExploreFragment extends Fragment {
 
     public static ExploreFragment newInstance() {
         return new ExploreFragment();
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        this.activity = activity;
     }
 
     @Override
@@ -70,10 +65,10 @@ public class ExploreFragment extends Fragment {
      */
     private void requestReadStoragePermission() {
         if (Build.VERSION.SDK_INT >= 23) {
-            int checkReadStoragePermission = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE);
+            int checkReadStoragePermission = ContextCompat.checkSelfPermission(_activity, Manifest.permission.READ_EXTERNAL_STORAGE);
             if (checkReadStoragePermission != PackageManager.PERMISSION_GRANTED) {
                 // 使用该方法请求授权 在fragment里将收不到授权结果的回调
-                // ActivityCompat.requestPermissions(activity,...,...);
+                // ActivityCompat.requestPermissions(_activity,...,...);
                 requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQT_READ_EXTERNAL_STORAGE);
             } else {
                 initData();
@@ -86,8 +81,8 @@ public class ExploreFragment extends Fragment {
     private void initView(View view) {
         recyclerView = (RecyclerView) view.findViewById(R.id.recy);
 
-        GridLayoutManager manager = new GridLayoutManager(activity, 2);
-        adapter = new ExploreAdapter(activity, ExploreFragment.this);
+        GridLayoutManager manager = new GridLayoutManager(_activity, 2);
+        adapter = new ExploreAdapter(_activity, ExploreFragment.this);
         recyclerView.addItemDecoration(new SpacingDecoration(24, 24, true));
         recyclerView.setLayoutManager(manager);
         recyclerView.setAdapter(adapter);
@@ -121,7 +116,7 @@ public class ExploreFragment extends Fragment {
                             adapter.setDatas(bucketEntity);
                         }, throwable -> {
                             throwable.printStackTrace();
-                            Toast.makeText(activity, R.string.yo_find_exception, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(_activity, R.string.yo_find_exception, Toast.LENGTH_SHORT).show();
                         }
                 );
     }
@@ -153,7 +148,7 @@ public class ExploreFragment extends Fragment {
         // SELECT _data, COUNT(*) AS v_count  FROM video WHERE ( GROUP BY bucket_display_name)
         String selection = " 1=1 ) GROUP BY (" + MediaStore.Images.Media.BUCKET_DISPLAY_NAME;
 
-        return activity.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, mediaColumns, selection, null, null);
+        return _activity.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, mediaColumns, selection, null, null);
     }
 
     @Override
@@ -162,7 +157,7 @@ public class ExploreFragment extends Fragment {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 initData();
             } else {
-                Toast.makeText(activity, R.string.yo_denied_permission, Toast.LENGTH_LONG).show();
+                Toast.makeText(_activity, R.string.yo_denied_permission, Toast.LENGTH_LONG).show();
             }
             return;
         }
