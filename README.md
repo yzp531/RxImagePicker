@@ -14,6 +14,8 @@
 
 5.Toolbar替换自定义Titlebar
 
+6.适配了Android 6.0的权限请求
+
 ## 截图
 <img src="/screenshot/bukets.png" width="280px"/>
 <img src="/screenshot/imgs.png" width="280px"/>
