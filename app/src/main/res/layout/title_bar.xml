@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/titlebar"
+              android:layout_width="match_parent"
+              android:layout_height="@dimen/yo_bar_height"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:orientation="vertical">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/yo_bar_height"
+        android:background="@color/yo_bar_color"
+        android:minHeight="@dimen/yo_bar_height"
+        app:elevation="0dp"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+    </android.support.v7.widget.Toolbar>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.8dp"
+        android:layout_gravity="bottom"
+        android:background="@color/yo_bg_divider"/>
+</FrameLayout>

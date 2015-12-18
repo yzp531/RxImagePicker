@@ -1,0 +1,66 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recy"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        android:clipToPadding="false"
+        android:paddingTop="4dp"
+        android:paddingBottom="@dimen/yo_btn_height"/>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/yo_btn_height"
+        android:layout_gravity="bottom"
+        android:background="@color/yo_bg_app">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.6dp"
+            android:background="@color/yo_bg_divider"/>
+
+        <TextView
+            android:id="@+id/tv_pick_pic_count"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:paddingLeft="16dp"
+            android:textColor="@color/yo_text_light"
+            android:textSize="13sp"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="right">
+
+            <TextView
+                android:id="@+id/tv_btn_preview"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="false"
+                android:gravity="center_vertical"
+                android:paddingLeft="24dp"
+                android:paddingRight="24dp"
+                android:text="@string/yo_preview"
+                android:textColor="@color/yo_text_light"/>
+
+            <TextView
+                android:id="@+id/tv_btn_yes"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="false"
+                android:gravity="center_vertical"
+                android:paddingLeft="24dp"
+                android:paddingRight="24dp"
+                android:text="@android:string/yes"
+                android:textColor="@color/yo_text_light"/>
+
+        </LinearLayout>
+    </FrameLayout>
+
+</FrameLayout>
