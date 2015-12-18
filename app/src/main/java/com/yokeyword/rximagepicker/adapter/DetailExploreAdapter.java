@@ -52,8 +52,17 @@ public class DetailExploreAdapter extends RecyclerView.Adapter<DetailExploreAdap
     public void setDatas(List<File> beans) {
         items.clear();
         items.addAll(beans);
-        initData();
         notifyDataSetChanged();
+    }
+
+
+    public void addData(File file) {
+        items.add(file);
+        if (mChecked == null) {
+            mChecked = new ArrayList<>();
+        }
+        mChecked.add(false);
+        notifyItemInserted(getItemCount() - 1);
     }
 
     private void initData() {
@@ -144,7 +153,6 @@ public class DetailExploreAdapter extends RecyclerView.Adapter<DetailExploreAdap
     public int getItemCount() {
         return items.size();
     }
-
 
     class MyViewHolder extends RecyclerView.ViewHolder {
         ImageView pic;

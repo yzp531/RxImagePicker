@@ -25,11 +25,20 @@ import com.yokeyword.rximagepicker.adapter.DetailExploreAdapter;
 import com.yokeyword.rximagepicker.helper.OnRecyclerViewItemClickListener;
 import com.yokeyword.rximagepicker.helper.RxBus;
 import com.yokeyword.rximagepicker.helper.SpacingDecoration;
+import com.yokeyword.rximagepicker.model.BucketEntity;
 import com.yokeyword.rximagepicker.model.event.AddPreviewEvent;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import rx.Observable;
+import rx.Subscriber;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 /**
  * 手机上图片详细 界面
@@ -42,6 +51,8 @@ public class DetailExploreFragment extends Fragment implements OnRecyclerViewIte
     private RecyclerView recyclerView;
     private TextView tvBtnPreview, tvBtnYes, tvPickPicCount;
     private Activity activity;
+
+    private Subscription subscription;
 
     // 专辑名称
     private String bucket_name = "";
@@ -91,43 +102,55 @@ public class DetailExploreFragment extends Fragment implements OnRecyclerViewIte
     }
 
     private void initData() {
-        new PicDetailExploreTask().execute();
+        subscription = cursorObservable()
+                .subscribeOn(Schedulers.io())
+                // 延迟60ms发射数据 形成动画, delay默认在computation线程 要主动切换到当前的线程
+                .delay(60, TimeUnit.MILLISECONDS, Schedulers.immediate())
+                .filter(cursor -> {
+                    String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+                    return !path.endsWith(".gif");
+                })
+                .map(cursor -> {
+                    String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+                    return new File(path);
+                })
+//                .toList()
+                // 如果不用toList()转成List  一定要调用onBackpressureBuffer()方法,防止数据源发射过快,导致异常MissingBackpressureException
+                .onBackpressureBuffer()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        file -> {
+                            adapter.addData(file);
+                        }, throwable -> {
+                            throwable.printStackTrace();
+                            Toast.makeText(activity, R.string.yo_find_exception, Toast.LENGTH_SHORT).show();
+                        }
+                );
     }
 
-    class PicDetailExploreTask extends AsyncTask<String, Integer, List<File>> {
-
-        @Override
-        protected List<File> doInBackground(String... params) {
-            return getPics();
-        }
-
-        @Override
-        protected void onPostExecute(List<File> files) {
-            super.onPostExecute(files);
-            adapter.setDatas(files);
-        }
+    private Observable<Cursor> cursorObservable() {
+        return Observable.create(new Observable.OnSubscribe<Cursor>() {
+            @Override
+            public void call(Subscriber<? super Cursor> subscriber) {
+                if (!subscriber.isUnsubscribed()) {
+                    Cursor cursor = getCursor();
+                    while (cursor.moveToNext()) {
+                        subscriber.onNext(cursor);
+                    }
+                    subscriber.onCompleted();
+                    cursor.close();
+                }
+            }
+        });
     }
 
-    private List<File> getPics() {
-        List<File> listFiles = new ArrayList<>();
-
+    private Cursor getCursor() {
         String[] mediaColumns = new String[]{
                 MediaStore.Images.Media.DATA,
         };
         String selection = MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " = ?";
 
-        Cursor cursor = activity.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, mediaColumns, selection, new String[]{bucket_name}, null);
-        assert cursor != null;
-        while (cursor.moveToNext()) {
-            String data = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-            if (data.endsWith(".gif")) {
-                continue;
-            }
-            listFiles.add(new File(data));
-        }
-        cursor.close();
-
-        return listFiles;
+        return activity.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, mediaColumns, selection, new String[]{bucket_name}, null);
     }
 
     @Override

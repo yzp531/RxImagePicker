@@ -8,7 +8,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.GridLayoutManager;
@@ -125,7 +124,6 @@ public class ExploreFragment extends Fragment {
                             Toast.makeText(activity, R.string.yo_find_exception, Toast.LENGTH_SHORT).show();
                         }
                 );
-
     }
 
     private Observable<Cursor> cursorObservable() {
