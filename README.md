@@ -4,7 +4,7 @@
 [原ImagePicker的传送门](https://github.com/YoKeyword/ImagePicker)
 
 ## 特性(对比ImagePicker)
-1.使用RxJava替代操作Cursor，并且在图片详情页面，使用RxJava操作符实现了一个RecyclerView的简单动画，提升了用户体验
+1.使用RxJava操作ContentProvider的Cursor，并且在图片详情页面，使用RxJava操作符实现了一个RecyclerView的简单动画，提升了用户体验
 
 2.使用RxBus实现组件通信
 
